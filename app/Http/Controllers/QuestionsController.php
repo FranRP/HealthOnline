@@ -23,6 +23,15 @@ class QuestionsController extends Controller
         return view('questions.index',compact('questions'));
     }
 
+    public function edit($id) 
+    {
+        $question = Question::findOrFail($id);
+        $question->status = 'cerrado';
+        $question->save();
+
+        return back();
+    }
+
 
     public function store(Request $request)
     {
@@ -47,13 +56,18 @@ class QuestionsController extends Controller
     public function destroy($id)
     {
         $question = Question::findOrFail($id);
-        $user = User::findOrFail($question->user_id);
+        $user = User::find($question->user_id);
 
-        $this->authorize('destroy',$user);
+        if (!$user)
+        {
+            $question->delete();
 
-        $question->delete();
+        } else {
 
-        
+            $this->authorize('destroy',$user);
+
+            $question->delete();
+        }
 
         return redirect()->route('home');
     }
@@ -194,56 +208,11 @@ class QuestionsController extends Controller
     {
         $question = Question::findOrFail($id);
 
-        $answers = Answer::where("question_id", "=", $id)->orderBy('created_at', request('sorted', 'DESC'))->paginate(5);
+        $answers = Answer::where("question_id", $id)->orderBy('created_at', request('sorted', 'DESC'))->paginate(5);
 
         return view('questions.show', compact('question','answers'));
     }
 
-/*
-    public function asignarLike(Request $request)
-    {
-        $question_id = $request->get("questionID");
-        $confirmed_like = $request->get("isLike");
 
-        if ($confirmed_like == 'true') {
-            $confirmed_like = true;
-        } else {
-            $confirmed_like = false;
-        }
-
-        $update = false;
-        $question = Question::findOrFail($question_id);
-
-        if (!$question) {
-            return null;
-        }
-
-        $user = auth()->user();
-        $like = $user->likes()->where('question_id',$question_id)->first();
-        if ($like) {
-            $already_like = $like->like;
-            $update = true;
-            if ($already_like == $confirmed_like) {
-                $like->delete();
-                return null;
-            }
-        } else {
-            $like = new Like();
-        }
-
-
-        $like->like = $confirmed_like;
-        $like->user_id = $user->id;
-        $like->question_id = $question_id;
-
-        if ($update === true) {
-            $like->update();
-        } else {
-            $like->save();
-        }
-
-        return null;
-    }
-*/
 
 }

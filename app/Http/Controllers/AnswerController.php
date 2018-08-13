@@ -24,9 +24,14 @@ class AnswerController extends Controller
     public function destroy($id)
     {
         $answer = Answer::findOrFail($id);
-        $user = User::findOrFail($answer->user_id);
+        $user = User::find($answer->user_id);
 
-        $this->authorize('destroy',$user);
+        if ($user)
+        {
+            $this->authorize('destroy',$user);
+        }
+
+        
 
         $answer->delete();
 
@@ -117,8 +122,15 @@ class AnswerController extends Controller
             $already_like = $like->like;
             $update = true;
             if ($already_like == $confirmed_like) {
+                if ($already_like == false) {
+                    $answer->user->likes = $answer->user->likes + 1;
+                } else {
+                    $answer->user->likes = $answer->user->likes - 1;
+                }
+                $variableLike = $like->answer_id;
                 $like->delete();
-                return null;
+                $answer->user->save();
+                return ['no-like',$variableLike];
             }
         } else {
             $like = new Like();
@@ -131,10 +143,24 @@ class AnswerController extends Controller
 
         if ($update === true) {
             $like->update();
+            if ($like->like) {
+                $answer->user->likes = $answer->user->likes + 2;
+            } else {
+                $answer->user->likes = $answer->user->likes - 2;
+            }
+            $answer->user->save();
+            return ['actualiza', $like->like, $like->answer_id];
         } else {
+            if ($like->like) {
+                $answer->user->likes = $answer->user->likes + 1;
+            } else {
+                $answer->user->likes = $answer->user->likes - 1;
+            }
+            
+            $answer->user->save();
             $like->save();
         }
 
-        return null;
+        return ['nuevo', $like->like, $like->answer_id];
     }
 }

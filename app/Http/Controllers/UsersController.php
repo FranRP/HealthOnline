@@ -17,8 +17,8 @@ class UsersController extends Controller
 
     function __construct()
     {
-        $this->middleware('auth', ['except' => ['show','create','store']]);
-        $this->middleware('roles:admin,mod',['except' => ['edit','update', 'show', 'destroy','create','store']]);
+        $this->middleware('auth', ['except' => ['show','create','store','listaProfesionales']]);
+        $this->middleware('roles:admin,mod',['except' => ['edit','update', 'show', 'destroy','create','store','listaProfesionales']]);
     }
 
 
@@ -29,7 +29,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = \App\User::all();
+        $users = \App\User::paginate(7);
 
         return view('users.index', compact('users'));
     }
@@ -55,11 +55,28 @@ class UsersController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
-        $user = User::create( $request->all());
+        if (($request->rolelegido != 2) && ($request->rolelegido != 3) && ($request->rolelegido != 4)) {
+
+            return back()->with('info','Ha ocurrido algún error');
+
+        }
+
+        if ($request->rolelegido == 2) {
+            $user = User::create( $request->all());
+        }
+        
 
         if($request->rolelegido == 3) {
+            if ($request->profesion == "") {
+                return back()->with('info','Ha ocurrido algún error');
+            }
+            $user = User::create( $request->all());
             $user->profession_id = $request->localizacion;
         } else if ($request->rolelegido == 4){
+            if (($request->localizacion == "") || ($request->profesion == "")) {
+                return back()->with('info','Ha ocurrido algún error');
+            }
+            $user = User::create( $request->all());
             $user->city_id = $request->localizacion;
             $user->profession_id = $request->profesion;
         }
@@ -80,8 +97,9 @@ class UsersController extends Controller
     public function show($id)
     {
         $user = User::findOrFail($id);
+        $answers = \App\Answer::where('user_id',$id)->select('question_id')->take(10)->with('question')->distinct()->get();
 
-        return view('users.show', compact('user'));
+        return view('users.show', compact('user','answers'));
     }
 
     /**
@@ -98,6 +116,14 @@ class UsersController extends Controller
         $roles = Role::pluck('display_name','id');
 
         return view('users.edit', compact('user','roles'));
+    }
+
+    public function listaProfesionales() {
+
+        $users = User::where("profession_id", "!=", 'null')->orderBy('likes', 'DESC')->paginate(9);
+        //$users = \App\User::all()->sortByDesc('likes');
+        return view('users.profesionales', compact('users'));
+
     }
 
     /**
@@ -118,10 +144,14 @@ class UsersController extends Controller
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
             Image::make($avatar)->resize(300,300)->save (public_path('/uploads/'. $filename));
             $user->avatar=$filename;        
-        } 
+        }
 
-        $user->roles()->sync($request->role);
+        if ($request->role) {
+            $user->roles()->sync($request->role);
+        }
+
         $user->update($request->only('name','email'));
+        $user->perfil = $request->perfil;
         
         $user->save();
 
@@ -141,6 +171,6 @@ class UsersController extends Controller
 
         $user->delete();
 
-        return back();
+        return redirect()->route('home');
     }
 }

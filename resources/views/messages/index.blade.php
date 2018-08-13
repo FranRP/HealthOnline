@@ -13,57 +13,79 @@
           </div>
           <div class="col-lg-8 mx-auto">
             <p class="text-faded mb-5">Administración de mensajes - Editar, borrar y ver</p>
-            <a class="btn btn-primary btn-xl js-scroll-trigger" href="#about">Ver más</a>
+            <a class="btn btn-primary btn-xl ver-mas">Ver más</a>
           </div>
         </div>
       </div>
 </header>
 
-<div class="container" style="margin-top:30px !important">
+<div class="container primer-bloque administracion-section">
 
-	<h1>Todos los mensajes</h1>
-	<table class="table">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Nombre</th>
-				<th>Email</th>
-				<th>Mensaje</th>
-				<th>Etiquetas</th>
-				<th>Acciones</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach ($messages as $message)
-			<tr>
-				<td>{{ $message->id }}</td>
-				@if ($message->user_id && $message->user != null)
-					<td>{{ $message->user->name}}</td>
-					<td>{{ $message->user->email}}</td>
-				@elseif ($message->user_id && $message->user == null)
-					<td style="color:red;">Eliminado</td>
-					<td style="color:red;">Eliminado</td>
-				@else
-					<td>{{ $message->name }}</td>
-					<td>{{ $message->email }}</td>
-				@endif
-				<td> <a href="{{route('mensajes.show', $message->id)}}">{{ $message->mensaje }}</a></td>
-				<td>{{$message->tags->pluck('name')->implode(', ')}}</td>
-				<td>
-					<a  class="btn btn-sm btn-secondary" href="{{ route('mensajes.edit', $message->id) }}">Editar</a>
-					<form style="display:inline" method="POST" action="{{ route('mensajes.destroy', $message->id) }}">
-						{!! csrf_field() !!}
-						{!! method_field('DELETE') !!}
-						<button class="btn btn-sm btn-danger" type="submit">Eliminar</button>
+	
+	<section id="contact">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h2 class="section-heading">Todos los mensajes</h2>
+            <hr class="my-4">
+            <p class="mb-5">{!! $messages->appends(request()->query())->links() !!}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12 mr-auto text-center">
+            
+			<div class="table-responsive">
+				<table class="table administracion-section administracion-section-messages">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Nombre</th>
+							<th>Email</th>
+							<th>Mensaje</th>
+							<th>Etiquetas</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach ($messages as $message)
+						<tr>
+							<td>{{ $message->id }}</td>
+							@if ($message->user_id && $message->user != null)
+								<td><a href="{{route('usuarios.show', $message->user->id)}}">{{$message->user->name}}</a></td>
+								<td>{{ $message->user->email}}</td>
+							@elseif ($message->user_id && $message->user == null)
+								<td style="color:red;">Eliminado</td>
+								<td style="color:red;">Eliminado</td>
+							@else
+								<td>{{ $message->name }}</td>
+								<td>{{ $message->email }}</td>
+							@endif
+							<td> <a href="{{route('mensajes.show', $message->id)}}">{{ $message->mensaje }}</a></td>
+							<td>{{$message->tags->pluck('name')->implode(', ')}}</td>
+							<td>
+
+								{!! Form::open(['route' => ['mensajes.destroy', $message->id], 'method'=> 'DELETE']) !!}
+									<button class="btn btn-sm btn-danger btn-delete">Eliminar</button>
+								{!! Form::close() !!}
+
+							</td>
+						</tr>
+						@endforeach
+						<!--{!! $messages->appends(['sorted' => request('sorted')])->links() !!}-->
 						
-					</form>
+					</tbody>
+				</table>
+			</div>
 
-				</td>
-			</tr>
-			@endforeach
-			<!--{!! $messages->appends(['sorted' => request('sorted')])->links() !!}-->
-			{!! $messages->appends(request()->query())->links() !!}
-		</tbody>
-	</table>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+	
+
+	
+	
 </div>
 @stop

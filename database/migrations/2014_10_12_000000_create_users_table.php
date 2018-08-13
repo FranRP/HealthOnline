@@ -22,7 +22,8 @@ class CreateUsersTable extends Migration
             //$table->integer('role_id');
             $table->integer('profession_id')->nullable();
             $table->integer('city_id')->nullable();
-            $table->string('perfil')->nullable();
+            $table->text('perfil')->nullable();
+            $table->integer('likes')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

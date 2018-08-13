@@ -6,23 +6,12 @@
 </head>
 <body>
 	
-	<h1>Te responderemos lo antes posible</h1>
-	<table class="table table-inverse">
-		<thead>
-			<tr>
-				<th>Nombre</th>
-				<th>Email</th>
-				<th>Mensaje</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td>{{$msg->name}}</td>
-				<td>{{$msg->email}}</td>
-				<td>{{$msg->mensaje}}</td>
-			</tr>
-		</tbody>
-	</table>
+	<h3>¡Gracias por ponerte en contacto con nosotros!</h3>
+	<p>Mensaje enviado por: {{$msg->name}}</p>
+	<p>Correo: {{$msg->email}}</p>
+	<p>Mensaje: {{$msg->mensaje}}</p>
+	<br>
+	<p>Si estos no son tus datos, porfavor, ignora este mensaje. Si eres el dueño, ¡no dudes en que te responderemos lo antes posible!</p>
 
 </body>
 </html>

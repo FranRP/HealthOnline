@@ -15,7 +15,7 @@ class MessagesTableSeeder extends Seeder
     {
         Message::truncate();
 
-        for ($x=1; $x < 51; $x++) {
+        for ($x=1; $x < 31; $x++) {
         	Message::create([
         		'name' => "Usuario {$x}",
         		'email' => "usuario{$x}@gmail.com",

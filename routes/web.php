@@ -31,6 +31,15 @@ DB::listen(function($query){
 });
 
 Route::get('prueba', function() {
+	$prueba = \App\Inbox::with('user')->get();
+	return $prueba;
+	$prueba = \App\Report::with(['user','reportable'])->orderBy('created_at', request('sorted', 'DESC'))->get();
+	return $prueba[0];
+	$answer = \App\Answer::where('user_id',4)->select('question_id')->take(1)->with('question')->distinct()->get();
+	return $answer;
+	return \App\Report::with('reportable')->get();
+	$prueba = \App\Inbox::where('destinatario',auth()->user()->name)->with('user')->first();
+	return $prueba;
 	$user = \App\User::findOrFail(1);
 	return \App\Report::where('reportable_type','=',"App\Answer")->get();
 
@@ -42,73 +51,7 @@ Route::get('prueba', function() {
 });
 
 
-Route::get('test', function() {
 
-	$user = new App\User;
-	$user->name = 'admin';
-	$user->email = 'admin@gmail.com';
-	$user->password = bcrypt('123123');
-	$user->save();
-
-	return $user;
-
-});
-
-Route::get('test1', function() {
-
-	$user = new App\User;
-	$user->name = 'mod';
-	$user->email = 'moderador@gmail.com';
-	$user->password = bcrypt('123123');
-	$user->save();
-
-	return $user;
-
-});
-
-Route::get('test2', function() {
-
-	$user = new App\Role;
-	$user->name = 'admin';
-	$user->display_name = 'Admin';
-	$user->description = 'Este rol tiene permisos de administración';
-	$user->save();
-
-	return $user;
-
-});
-
-Route::get('test3', function() {
-
-	$user = new App\Role;
-	$user->name = 'mod';
-	$user->display_name = 'Moderador';
-	$user->description = 'Este rol tiene permisos de moderación';
-	$user->save();
-
-	return $user;
-
-});
-
-Route::get('test3', function() {
-
-	$user = new App\Role;
-	$user->name = 'user';
-	$user->display_name = 'Usuario';
-	$user->description = 'Este rol no tiene permisos administrativos';
-	$user->save();
-
-	return $user;
-
-});
-
-/*
-App\User::create([
-	'name' => 'Fran',
-	'email' => 'fran@gmail.com',
-	'password' => bcrypt('123123'),
-	'role' => 'normal'
-]);*/
 
 Route::get('/',['as'=>'home','uses' => 'PagesController@home']);
 
@@ -117,8 +60,10 @@ Route::get('saludos/{nombre?}', ['as'=>'saludos', 'uses' => 'PagesController@sal
 
 Route::resource('mensajes','MessagesController');
 Route::resource('usuarios','UsersController');
+Route::resource('reportes','ReportsController');
 Route::resource('preguntas','QuestionsController');
 Route::resource('respuestas', 'AnswerController');
+Route::resource('correos','InboxesController');
 
 Route::get('login','Auth\LoginController@showLoginForm');
 
@@ -136,9 +81,11 @@ Route::get('/preguntasAjax', function() {
 Route::get('/peticionScroll', 'QuestionsController@scroll');
 Route::get('/recargaPreguntas', 'QuestionsController@recarga');
 Route::get('/filtrarOrden', 'QuestionsController@filtrarOrden');
+Route::get('/usuarios-profesionales','UsersController@listaProfesionales');
 Route::post('/asignarLike', 'AnswerController@asignarLike');
 Route::post('/reportarQuestion', 'QuestionsController@reportarQuestion');
 Route::post('/reportarAnswer', 'AnswerController@reportarAnswer');
+
 
 /*
 Route::delete('usuarios/{usuario_id?}',function($usuario_id){
