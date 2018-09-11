@@ -119,7 +119,7 @@ class UsersController extends Controller
     }
 
     public function listaProfesionales() {
-        $users = \App\User::paginate(7);
+        return 'hola que tal';
         //$users = User::where("profession_id", "!=", 'null')->orderBy('likes', 'DESC')->paginate(9);
         //$users = \App\User::all()->sortByDesc('likes');
         return view('users.profesionales', compact('users'));
